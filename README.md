@@ -1,5 +1,3 @@
-基于 [牛客高级项目课](https://www.nowcoder.com/courses/semester/senior) 进行二次开发，加入文章的Markdown编辑环境、文章的分类和标签，完善关注功能、收藏功能、后台管理和其他功能的一些细节，具体如以下截图所示。所上传的代码为牛客项目原始代码，联系方式 Q：1206185376
-
 ## 系统简介
 
 ![03](https://s2.loli.net/2022/06/12/VPBM7X5KuWRL6Fn.png)

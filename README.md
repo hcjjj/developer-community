@@ -4,6 +4,8 @@
 
 系统前端采用 `Bootstrap` 框架、`jQuery` 库、`Element UI` 等前端开发技术。数据存储采用 `MySQL` 数据库，使用到 `Kafka` 分布式消息系统、`Elasticsearch` 分布式搜索引擎、`Redis` 分布式缓存等支撑业务的组件。
 
+基于 [牛客高级项目课](https://gitee.com/link?target=https%3A%2F%2Fwww.nowcoder.com%2Fcourses%2Fsemester%2Fsenior) 进行二次开发，加入文章的Markdown编辑环境、文章的分类和标签，完善关注功能、收藏功能、后台管理和其他功能的一些细节，具体如以下截图所示。
+
 ![03](https://s2.loli.net/2022/06/12/VPBM7X5KuWRL6Fn.png)
 
 ## 开发环境

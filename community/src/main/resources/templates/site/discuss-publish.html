@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="icon" type="shortcut icon" th:href="@{/img/favicon.ico}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/css/bootstrap.min.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/css/global.css}"/>
+    <link rel="stylesheet" th:href="@{/css/bootstrap-icons.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/editor-md/examples/css/style.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/editor-md/css/editormd.css}"/>
+    <title>开发者社区 - 发布文章</title>
+</head>
+
+
+<body>
+<div class="nk-container">
+    <!-- 头部 -->
+    <header class="bg-dark sticky-top" th:replace="index::header">
+    </header>
+    <div id="layout">
+        <div class="bd-masthead">
+            <header style="text-align: center">
+                <div class="form-group">
+                    <input type="text" class="form-control" style="font-size: 24px; font-weight: 500;"
+                           id="recipient-name" placeholder="输入文章标题 ..." required>
+                </div>
+            </header>
+
+            <div id="test-editormd">
+                <textarea class="form-control" id="message-text" style="display:none;">
+[TOC]
+
+# 欢迎使用 Markdown在线编辑器
+
+**Markdown是一种轻量级的「标记语言」**
+
+Markdown是一种可以使用普通文本编辑器编写的标记语言，通过简单的标记语法，它可以使普通文本内容具有一定的格式。它允许人们使用易读易写的纯文本格式编写文档，然后转换成格式丰富的HTML页面，Markdown文件的后缀名便是“.md”
+
+
+#### 行内代码 Inline code
+
+执行命令：`npm install marked`
+
+#### 缩进风格
+
+即缩进四个空格，也做为实现类似`<pre>`预格式化文本(Preformatted Text)的功能。
+
+    <?php
+        echo "Hello world!";
+    ?>
+
+#### HTML代码 HTML codes
+
+```html
+<!DOCTYPE html>
+<html>
+    <head>
+        <mate charest="utf-8" />
+        <title>Hello world!</title>
+    </head>
+    <body>
+        <h1>Hello world!</h1>
+    </body>
+</html>
+```
+
+
+### 绘制表格 Tables
+
+| 项目        | 价格   |  数量  |
+| --------   | -----:  | :----:  |
+| 计算机      | $1600   |   5     |
+| 手机        |   $12   |   12   |
+| 管线        |    $1    |  234  |
+
+----
+                </textarea>
+            </div>
+
+            <div style="text-align: center; margin-top: 35px">
+
+                <select class="form-control-select" id="typeId">
+                    <option value="" selected>类型选择</option>
+                    <option th:each="list:${articleTypes}" th:value="${list.id}" th:text="${list.name }">
+                </select>
+
+                <button type="button" class="btn btn-outline-primary" id="addTags"
+                        style="color: rgb(76 83 90);border-color: rgb(206 212 218);"
+                        data-toggle="modal" data-target="#staticBackdrop"
+                ><i class="bi bi-tags"></i> 添加标签
+                </button>
+
+                <button type="button" class="btn btn-outline-primary" data-toggle="modal" id="checkBtn"
+                        style="color: rgb(110, 73, 170)"><i class="bi bi-plus-square"></i> 发布文章
+                </button>
+                <button type="button" class="btn btn-outline-secondary" id="backIndexBtn"
+                        style="color: rgb(58 89 152);border-color: rgb(58 89 152);;"><i class="bi bi-house"></i>
+                    返回首页
+                </button>
+
+                <!--                确认发布的提示框-->
+                <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel"
+                     aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="exampleModalLabel">提示</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"
+                                <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                确定要发布吗
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                                <button type="button" class="btn btn-primary" id="publishBtn">确定</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+                <!-- 添加标签 -->
+                <!-- Modal -->
+                <div class="modal fade" id="staticBackdrop" data-backdrop="static" data-keyboard="false" tabindex="-1"
+                     aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-scrollable">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="staticBackdropLabel">选择标签(最多5个)</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+
+
+                            <div class="modal-body">
+                                <div th:each="map : ${articleTags}">
+                                    <!--                                    分组名-->
+                                    <h6 th:text="${map.key}"></h6>
+                                    <!--                                    分组对应的标签-->
+                                    <div class="form-check form-check-inline"
+                                         th:each="list:${map.value}">
+                                        <input class="form-check-input" type="checkbox" name="tag"
+                                               th:value="${list.id}">
+                                        <label class="form-check-label" th:text="${list.name}">[标签名]</label>
+                                    </div>
+                                    <hr class="my-2">
+                                </div>
+
+                            </div>
+
+                            <div class="modal-footer">
+                                <button id="checkTag" type="button" class="btn btn-secondary" data-dismiss="modal">确定</button>
+                                <!--                                <button type="button" class="btn btn-secondary" data-dismiss="modal">关闭</button>-->
+                                <!--                                <button type="button" class="btn btn-primary">确定</button>-->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- 提示框 -->
+            <div class="modal fade" id="hintModal" tabindex="-1" role="dialog" aria-labelledby="hintModalLabel"
+                 aria-hidden="true">
+                <div class="modal-dialog modal-lg" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="hintModalLabel">提示</h5>
+                        </div>
+                        <div class="modal-body" id="hintBody"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+<script th:src="@{/js/jquery-3.3.1.min.js}"></script>
+<script th:src="@{/js/popper.min.js}"></script>
+<script th:src="@{/js/bootstrap.min.js}"></script>
+
+<script th:src="@{/editor-md/editormd.min.js}"></script>
+<script th:src="@{/js/global.js}"></script>
+<script th:src="@{/js/discuss-publish.js}"></script>
+
+<script type="text/javascript">
+    var testEditor;
+
+    $(function () {
+        testEditor = editormd("test-editormd", {
+            width: "90%",
+            height: 640,
+            syncScrolling: "single",
+            path: "../editor-md/lib/",
+            saveHTMLToTextarea: true, // 这个配置，方便 post 提交表单
+
+            /**上传图片相关配置如下*/
+            imageUpload: true,
+            imageFormats: ["jpg", "jpeg", "gif", "png", "bmp", "webp"],
+            imageUploadURL: CONTEXT_PATH + "/discuss/uploadMdPic",// 后端上传图片的服务地址
+            onload: function () {
+                //console.log('onload', this);
+                //this.fullscreen();
+                //this.unwatch();
+                //this.watch().fullscreen();
+
+                //this.setMarkdown("#PHP");
+                //this.width("100%");
+                //this.height(480);
+                //this.resize("100%", 640);
+            }
+        });
+
+    });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="icon" type="shortcut icon" th:href="@{/img/favicon.ico}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/css/bootstrap.min.css}"/>
+    <link rel="stylesheet" th:href="@{/css/bootstrap-icons.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/css/global.css}"/>
+    <title>开发者社区-个人主页</title>
+</head>
+<body>
+<div class="nk-container">
+    <!-- 头部 -->
+    <header class="bg-dark sticky-top" th:replace="index::header">
+    </header>
+
+    <!-- 内容 -->
+    <div class="main">
+        <div class="bd-masthead">
+            <div class="container">
+                <!-- 选项 -->
+                <div class="position-relative">
+                    <ul class="nav nav-tabs">
+                        <li class="nav-item">
+                            <a class="nav-link active" th:href="@{|/user/profile/${user.id}|}">个人信息</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" th:href="@{|/user/mypost/${user.id}|}"
+                               th:text="${loginUser==null||loginUser.id!=user.id?'他的文章':'我的文章'}">我的帖子</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" th:href="@{|/user/myreply/${user.id}|}"
+                               th:text="${loginUser==null||loginUser.id!=user.id?'他的回复':'我的回复'}">我的回复</a>
+                        </li>
+                    </ul>
+                </div>
+                <!-- 个人信息 -->
+                <div class="media mt-5">
+                    <img th:src="${user.headerUrl}" class="align-self-start mr-4 rounded-circle" alt="用户头像"
+                         style="width:50px;">
+                    <div class="media-body">
+                        <h5 class="mt-0 text-warning">
+                            <span th:utext="${user.username}">用户名</span>
+                            <!--							follow-btn 的点击方法需要传入 userId-->
+                            <input type="hidden" id="entityId" th:value="${user.id}">
+                            <!--							未登入、访问的是自己的主页的话就不显示关注按钮-->
+                            <!--							btn-info 未关注的按钮样式-->
+                            <!--							btn-secondary 已关注的按钮样式-->
+                            <button type="button"
+                                    th:class="|btn ${hasFollowed?'btn-secondary':'btn-info'} btn-sm float-right mr-5 follow-btn|"
+                                    th:text="${hasFollowed?'已关注':'关注'}"
+                                    th:if="${loginUser!=null&&loginUser.id!=user.id}">关注状态
+                            </button>
+                        </h5>
+                        <div class="text-muted mt-3">
+                            <span>注册于 <i class="text-muted"
+                                         th:text="${#dates.format(user.createTime,'yyyy-MM-dd HH:mm:ss')}">用户注册时间</i></span>
+                        </div>
+                        <div class="text-muted mt-3 mb-5">
+                            <span>关注了 <a class="text-primary" th:href="@{|/followees/${user.id}|}"
+                                         th:text="${followeeCount}">关注目标的数量</a> 人</span>
+                            <span class="ml-4">关注者 <a class="text-primary" th:href="@{|/followers/${user.id}|}"
+                                                      th:text="${followerCount}">关注者的数量</a> 人</span>
+                            <span class="ml-4">获得了 <i class="text-danger" th:text="${likeCount}">获得赞的数量</i> 个赞</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 尾部 -->
+    <footer class="bg-dark" th:replace="index::footer">
+    </footer>
+</div>
+
+<script th:src="@{/js/jquery-3.3.1.min.js}"></script>
+<script th:src="@{/js/popper.min.js}"></script>
+<script th:src="@{/js/bootstrap.min.js}"></script>
+<script th:src="@{/js/global.js}"></script>
+<script th:src="@{/js/profile.js}"></script>
+</body>
+</html>

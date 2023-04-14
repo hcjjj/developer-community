@@ -1,0 +1,14 @@
+### community ###
+*/log
+*.log
+/src/main/resources/static/editor-md-upload
+
+### IntelliJ IDEA ###
+*.idea
+*/target
+
+### VS Code ###
+*.vscode
+
+### MacOS ###
+.DS_Store

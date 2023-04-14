@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="icon" type="shortcut icon" th:href="@{/img/favicon.ico}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/css/bootstrap.min.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/css/global.css}"/>
+    <link rel="stylesheet" th:href="@{/css/bootstrap-icons.css}"/>
+<!--    <script src="https://cdn.staticfile.org/echarts/4.3.0/echarts.min.js"></script>-->
+    <script th:src="@{/js/echarts.min.js}"></script>
+
+    <title>开发者社区-数据统计</title>
+</head>
+<body>
+<div class="nk-container">
+    <!-- 头部 -->
+    <header class="bg-dark sticky-top" th:replace="index::header">
+    </header>
+
+    <!-- 内容 -->
+    <div class="main">
+        <div class="bd-masthead">
+            <!-- 网站UV -->
+            <div class="container pl-5 pr-5 pt-3 pb-3 mt-3">
+                <h6 class="mt-3" style="margin-left: 70px;"><b class="square"></b> 独立访客</h6>
+                <form class="form-inline mt-3" style="margin-left: 70px;" method="post" th:action="@{/data/uv}">
+                    <input type="date" class="form-control" required name="start"
+                           th:value="${#dates.format(uvStartDate,'yyyy-MM-dd')}"/>
+                    <input type="date" class="form-control ml-3" required name="end"
+                           th:value="${#dates.format(uvEndDate,'yyyy-MM-dd')}"/>
+                    <button type="submit" class="btn btn-primary ml-3">查询统计</button>
+                    <button type="button" class="btn btn-primary ml-3" disabled th:if="${uvResult}!= null"
+                            th:text="${uvResult}">[统计结果]
+                    </button>
+                </form>
+                <!--                <ul class="list-group mt-3 mb-3">-->
+                <!--                    <li class="list-group-item d-flex justify-content-between align-items-center">-->
+                <!--                        统计结果-->
+                <!--                        <span class="badge badge-primary badge-danger font-size-14" th:text="${uvResult}">0</span>-->
+                <!--                    </li>-->
+                <!--                </ul>-->
+            </div>
+            <!-- 活跃用户 -->
+            <div class="container pl-5 pr-5 pt-3 pb-3 mt-4">
+                <h6 class="mt-3" style="margin-left: 70px;"><b class="square"></b> 活跃用户</h6>
+                <form class="form-inline mt-3" style="margin-left: 70px;" method="post" th:action="@{/data/dau}">
+                    <input type="date" class="form-control" required name="start"
+                           th:value="${#dates.format(dauStartDate,'yyyy-MM-dd')}"/>
+                    <input type="date" class="form-control ml-3" required name="end"
+                           th:value="${#dates.format(dauEndDate,'yyyy-MM-dd')}"/>
+                    <button type="submit" class="btn btn-primary ml-3">查询统计</button>
+                    <button type="button" class="btn btn-primary ml-3" disabled th:if="${dauResult}!= null"
+                            th:text="${dauResult}">[统计结果]
+                    </button>
+                </form>
+                <!--                <ul class="list-group mt-3 mb-3">-->
+                <!--                    <li class="list-group-item d-flex justify-content-between align-items-center">-->
+                <!--                        统计结果-->
+                <!--                        <span class="badge badge-primary badge-danger font-size-14" th:text="${dauResult}">0</span>-->
+                <!--                    </li>-->
+                <!--                </ul>-->
+            </div>
+            <div class="container pl-5 pr-5 pt-3 pb-3 mt-4">
+                <!-- 为 ECharts 准备一个定义了宽高的 DOM -->
+                <div id="main" style="width: 900px;height:400px;"></div>
+            </div>
+            <script th:inline="javascript">
+                var uvDate = [[${uvDate}]];
+                var uvCount = [[${uvCount}]];
+                var dauCount = [[${dauCount}]];
+                console.log(uvDate);
+                console.log(uvCount);
+                console.log(dauCount);
+                // 基于准备好的dom，初始化echarts实例
+                var myChart = echarts.init(document.getElementById('main'));
+
+                // 指定图表的配置项和数据
+                var option = {
+                    color:['#a9d696','#8092d2'],
+                    legend: {
+                        data:['独立访客','活跃用户'],
+                        itemHeight:10,//图例的高度
+                        textStyle:{//图例文字的样式
+                            fontSize:16
+                        }
+                    },
+                    xAxis: {
+                        data: uvDate,
+                        name: '日期'
+                    },
+                    dataZoom: [{
+                        type: 'slider',
+                        show: true,
+                        xAxisIndex: [0],
+                        left: '9%',
+                        bottom: -5,
+                        start: 10,
+                        end: 90 //初始化滚动条
+                    }],
+                    yAxis: {
+                        name: '数量'
+                    },
+                    series: [
+                        {
+                            data: uvCount,
+                            name: '独立访客',
+                            type: 'line',
+                            lineStyle: {
+                                normal: {
+                                    color: '#a9d696',
+                                    width: 3,
+                                }
+                            },
+                            smooth: true,
+                            // areaStyle: {}
+                        },
+                        {
+                            data: dauCount,
+                            name: '活跃用户',
+                            type: 'line',
+                            lineStyle: {
+                                normal: {
+                                    color: '#8092d2',
+                                    width: 3,
+                                }
+                            },
+                            smooth: true,
+                            // areaStyle: {}
+                        }
+                    ]
+                };
+
+                // 使用刚指定的配置项和数据显示图表。
+                myChart.setOption(option);
+            </script>
+
+        </div>
+    </div>
+
+    <!-- 尾部 -->
+    <footer class="bg-dark" th:replace="index::footer">
+    </footer>
+</div>
+
+<!--<script src="https://code.jquery.com/jquery-3.3.1.min.js" crossorigin="anonymous"></script>-->
+<script th:src="@{/js/jquery-3.3.1.min.js}"></script>
+<!--<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"-->
+<!--        crossorigin="anonymous"></script>-->
+<script th:src="@{/js/popper.min.js}"></script>
+<!--<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" crossorigin="anonymous"></script>-->
+<script th:src="@{/js/bootstrap.min.js}"></script>
+<script th:src="@{/js/global.js}"></script>
+</body>
+</html>

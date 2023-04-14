@@ -1,0 +1,264 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.coder.community.dao.DiscussPostMapper">
+
+    <sql id="selectFields">
+        id
+        , user_id, title, content, type, status, create_time, comment_count, score, type_id
+    </sql>
+
+    <sql id="insertFields">
+        user_id
+        , title, content, type, status, create_time, comment_count, score, type_id
+    </sql>
+
+
+    <!--    根据分组名查询对应的标签-->
+    <select id="selectTagsByGroupName" resultType="Tag">
+        SELECT id, name
+        from tag
+        WHERE group_name = #{groupName}
+    </select>
+
+    <!--    查询某文章的标签数据-->
+    <select id="selectArticleTagsById" resultType="Tag">
+        select id, name
+        from tag
+        where is_delete != 1
+				and id in (
+                    SELECT tag_id from tag_posts_mapping WHERE posts_id = #{postId}
+          and is_delete != 1)
+--         limit 0, 5
+    </select>
+
+    <!--    查询某文章的标签数据-->
+    <select id="selectTagById" resultType="Tag">
+        SELECT id,group_name, name, description, ref_count
+        FROM tag
+        WHERE is_delete != 1 and id = #{tagId}
+    </select>
+
+    <!--    查询所有标签数据-->
+    <select id="selectArticleTags" resultType="Tag">
+        select id, group_name, name, description, ref_count
+        from tag
+        where is_delete != 1
+        <if test="mode==1">
+            order by ref_count desc LIMIT 0, 30
+        </if>
+    </select>
+
+
+    <!--    增加类型对应文章的数量-->
+    <update id="addTypeRefCount">
+        UPDATE article_type
+        set ref_count= ref_count + 1
+        WHERE id = #{typeId};
+    </update>
+
+    <!--    减少类型对应文章的数量-->
+    <update id="reduceTypeRefCount">
+        UPDATE article_type
+        set ref_count= ref_count - 1
+        WHERE id = #{typeId};
+    </update>
+
+    <!--    增加标签引用数量-->
+    <update id="addTagsRefCount">
+        UPDATE tag
+        set ref_count = ref_count + 1
+        WHERE id in
+        <foreach collection="list" item="id" index="index" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </update>
+
+    <!--    减少标签引用数量-->
+    <update id="reduceTagsRefCount">
+        UPDATE tag
+        set ref_count = ref_count - 1
+        WHERE id in
+        <foreach collection="list" item="id" index="index" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </update>
+
+    <!--    查询所有的文章分类信息-->
+    <select id="selectArticleType" resultType="articleType">
+        SELECT id, name, ref_count
+        from article_type
+        where is_delete != 1;
+    </select>
+
+    <select id="selectArticleTypeByPostId" resultType="articleType">
+        SELECT name
+        from article_type
+        where id = #{postId}
+    </select>
+
+    <select id="selectArticleTypeById" resultType="articleType">
+        SELECT id, name, ref_count
+        from article_type
+        where id = #{typeId}
+    </select>
+
+    <!--    首页和用户页面我的帖子用到这个动态SQL-->
+    <!-- 0-正常; 1-精华; 2-拉黑; 两种排序查询方式 1是根据得分 和 时间倒序-->
+    <select id="selectDiscussPosts" resultType="DiscussPost">
+        select
+        <include refid="selectFields"></include>
+        from discuss_post
+        where status != 2
+        <if test="userId!=0">
+            and user_id = #{userId}
+        </if>
+        <if test="typeId!=0">
+            and type_id = #{typeId}
+        </if>
+        <if test="orderMode==0">
+            order by type desc, create_time desc
+        </if>
+        <if test="orderMode==1">
+            order by type desc, score desc, create_time desc
+        </if>
+        limit #{offset}, #{limit}
+    </select>
+
+
+    <!--     获取 关注者/收藏 的帖子-->
+    <select id="selectPartDiscussPosts" resultType="DiscussPost">
+        SELECT
+        <include refid="selectFields"></include>
+        FROM discuss_post
+        WHERE status != 2 AND
+        <if test="mode==0">
+            user_id IN
+            <foreach collection="list" item="id" index="index" open="(" close=")" separator=",">
+                #{id}
+            </foreach>
+        </if>
+        <if test="mode==1">
+            id IN
+            <foreach collection="list" item="id" index="index" open="(" close=")" separator=",">
+                #{id}
+            </foreach>
+        </if>
+        order by create_time desc
+        limit #{offset}, #{limit}
+    </select>
+
+    <!--     获取 关注者/收藏 的帖子数量-->
+    <select id="selectPartDiscussPostRows" resultType="int">
+        select count(id)
+        from discuss_post
+        WHERE status != 2 AND
+        <if test="mode==0">
+            user_id IN
+            <foreach collection="list" item="id" index="index" open="(" close=")" separator=",">
+                #{id}
+            </foreach>
+        </if>
+        <if test="mode==1">
+            id IN
+            <foreach collection="list" item="id" index="index" open="(" close=")" separator=",">
+                #{id}
+            </foreach>
+        </if>
+    </select>
+
+    <!--    这里的 resultType="int" 可以不声明，可以被识别-->
+    <select id="selectDiscussPostRows" resultType="int">
+        select count(id)
+        from discuss_post
+        where status != 2
+        <if test="userId!=0">
+            and user_id = #{userId}
+        </if>
+    </select>
+
+
+    <!--    添加帖子-->
+    <insert id="insertDiscussPost" parameterType="DiscussPost" keyProperty="id">
+        insert into discuss_post(<include refid="insertFields"></include>)
+        values(#{userId},#{title},#{content},#{type},#{status},#{createTime},#{commentCount},#{score},#{typeId})
+    </insert>
+
+    <!--    添加文章对应的标签-->
+    <!--    批量的好处：可以避免程序和数据库建立多次连接，从而增加服务器负荷。-->
+    <insert id="insertPostTags">
+        INSERT into tag_posts_mapping (posts_id, tag_id)
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            (#{postId},#{item})
+        </foreach>
+    </insert>
+
+    <!--    删除文章对应的标签-->
+    <!--    <delete id="deletePostTags">-->
+    <!--        DELETE-->
+    <!--        FROM tag_posts_mapping-->
+    <!--        WHERE posts_id = #{postId};-->
+    <!--    </delete>-->
+    <update id="deletePostTags">
+        update tag_posts_mapping
+        set is_delete = 1
+        WHERE posts_id = #{postId};
+    </update>
+
+    <!--    根据id查询帖子内容-->
+    <select id="selectDiscussPostById" resultType="DiscussPost">
+        select
+        <include refid="selectFields"></include>
+        from discuss_post
+        where id = #{id}
+    </select>
+
+    <!--    修改帖子评论数量，冗余存储方便查询使用-->
+    <update id="updateCommentCount">
+        update discuss_post
+        set comment_count = #{commentCount}
+        where id = #{id}
+    </update>
+
+    <update id="updateType">
+        update discuss_post
+        set type = #{type}
+        where id = #{id}
+    </update>
+
+    <update id="updateStatus">
+        update discuss_post
+        set status = #{status}
+        where id = #{id}
+    </update>
+
+    <update id="updateScore">
+        update discuss_post
+        set score = #{score}
+        where id = #{id}
+    </update>
+
+    <!--     获取 关注者/收藏 的帖子-->
+    <select id="selectPostsByTagId" resultType="DiscussPost">
+        select
+        <include refid="selectFields"></include>
+        from discuss_post
+        where status != 2
+        and id IN (
+        SELECT posts_id from tag_posts_mapping WHERE is_delete != 1 and tag_id = #{tagId}
+        )
+        order by create_time desc
+        limit #{offset}, #{limit}
+    </select>
+
+    <!--     获取 关注者/收藏 的帖子数量-->
+    <select id="selectPostsByTagIdRows" resultType="int">
+        SELECT count(*)
+        from tag_posts_mapping
+        WHERE is_delete != 1 and tag_id = #{tagId};
+    </select>
+
+</mapper>

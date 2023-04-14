@@ -1,0 +1,13 @@
+/*
+  元素选择器
+# id选择器
+. 类型选择器
+
+
+https://www.w3school.com.cn/
+
+
+*/
+.main .container {
+	width: 720px;
+}

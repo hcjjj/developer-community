@@ -1,10 +1,8 @@
 ## 系统简介
 
-后端采用 `Spring Boot` 框架将 `Spring MVC`、`Mybatis-Plus` 等开发技术整合在一起。
-
-前端采用 `Bootstrap` 框架、`jQuery` 库、`Element UI` 等。
-
-数据存储采用 `MySQL` 数据库，使用到 `Kafka` 分布式消息系统、`Elasticsearch` 分布式搜索引擎、`Redis` 分布式缓存等支撑业务的组件。
+* 后端： `Spring Boot` 框架集成 `Spring MVC`、`Mybatis-Plus` 等
+* 前端： `Bootstrap` 框架、`jQuery` 库、`Element UI` 等
+* 数据存储： `MySQL` 数据库、 `Kafka` 分布式消息系统、`Elasticsearch` 分布式搜索引擎、`Redis` 分布式缓存等
 
 项目参考 [牛客高级项目课](https://gitee.com/link?target=https%3A%2F%2Fwww.nowcoder.com%2Fcourses%2Fsemester%2Fsenior) ，**加入文章的 Markdown 编辑环境、文章的分类和标签，完善关注功能、收藏功能、后台管理和其他功能的一些细节**，具体如以下截图所示。
 
